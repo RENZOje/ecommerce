@@ -29,6 +29,32 @@
 
         let csrftoken = getToken('csrftoken');
 
+
+        function getCookie(name) {
+            // Split cookie string and get all individual name=value pairs in array
+            let cookieArr = document.cookie.split(';');
+            // Loop through the array elements
+            for (let i of cookieArr) {
+                let cookiePair = i.split('=');
+                // Removing whitespace at cookie name and looking for given string
+                if (name == cookiePair[0].trim()) {
+                    return decodeURIComponent(cookiePair[1])
+                }
+            }
+            // return null if not found name
+            return null;
+        }
+
+        let cart = JSON.parse(getCookie('cart'));
+        console.log('Before Cart:', cart);
+
+        if (cart == undefined) {
+            cart = {};
+            console.log('Cart was created!', cart);
+            document.cookie = 'cart=' + JSON.stringify(cart) + ";domain=;path=/"
+        }
+
+        console.log('Cart:', cart);
     </script>
 
     <title>Ecom</title>
