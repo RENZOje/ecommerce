@@ -3,7 +3,6 @@ import datetime
 from .models import *
 
 
-
 def cookie_cart(request):
     try:
         cart = json.loads(request.COOKIES['cart'])
@@ -44,11 +43,10 @@ def cookie_cart(request):
         except:
             pass
 
-    return {'cart_items': cart_items, 'order': order, 'items': items }
+    return {'cart_items': cart_items, 'order': order, 'items': items}
 
 
 def cart_data(request):
-
     if request.user.is_authenticated:
         customer = request.user.customer
         order, created = Order.objects.get_or_create(customer=customer, complete=False)
@@ -61,3 +59,31 @@ def cart_data(request):
         cart_items = cookies_data['cart_items']
 
     return {'cart_items': cart_items, 'order': order, 'items': items}
+
+
+def guest_order(request, data):
+    name = data['form']['name']
+    email = data['form']['email']
+
+    cookie_data = cookie_cart(request)
+    items = cookie_data['items']
+
+    customer, created = Customer.objects.get_or_create(email=email,
+                                                       )
+    customer.name = name
+    customer.save()
+
+    order = Order.objects.create(
+        customer=customer, complete=False
+    )
+
+    for item in items:
+        product = Product.objects.get(id=item['product']['id'])
+
+        order_item = OrderItem.objects.create(
+            product=product,
+            order=order,
+            quantity=item['quantity']
+        )
+
+    return customer, order
